@@ -1,0 +1,22 @@
+approve / transferFrom / allowance were included in ERC20 token standard to resolve EthereumVM related issues with "call stack depth attack". They should be considered deprecated and superfluous now. These functions doesn't introduce any functionality that could not be implemented without them. Call stack depth attack was resolved at the EIP150 (as you can see it happened a bit later than EIP 20 was created).
+
+You should keep in mind that ERC20 token standard functions are leading to monetary losses. I wrote a number of articles about it (for example this one).
+
+The main problem of ERC20 token is that it has two ways of transferring funds:
+
+transfer
+approve + transferFrom
+which assumes that first pattern is processed without handling by the receiver and the second pattern simulates transaction handling.
+
+The purpose of approve + transferFrom was described in solidity documentation at page 39:
+
+Warning: There are some dangers in using send: The transfer fails if the call stack depth is at 1024 (this can always be forced by the caller) and it also fails if the recipient runs out of gas. So in order to make safe Ether transfers, always check the return value of send, use transfer or even better: use a pattern where the recipient withdraws the money
+
+This was relevant at the moment of creating ERC20 token standard, but the stack depth attack was fixed through EIP150 . As the result of this approve + transferFrom must be considere deprecated now.
+
+I think that there is no need to develop and implement the approve / allowance mechanism because:
+
+approve + transferFrom is leading to monetary losses since it assumes another way to transfer tokens (And an alternative way to execute a transaction often does not implement handling)
+vulnerability to re-approval attack is described here
+approve is superfluous since common pattern of transactions handling is fallback function execution. It is already described in ERC223.
+I'd like to recommend to remove decApprove / setApprove / getAllowance from the token standard because of described problems of this approach.

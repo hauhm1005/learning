@@ -1,0 +1,2 @@
+Computed properties are used to handle complex calculations of information that need to be
+displayed in the view
